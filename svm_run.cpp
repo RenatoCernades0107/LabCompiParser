@@ -11,7 +11,7 @@
 
 int main(int argc, const char* argv[]) {
 
-  bool useparser = false;
+  bool useparser = true;
   SVM* svm;
 
   if (useparser) {
@@ -23,6 +23,7 @@ int main(int argc, const char* argv[]) {
   cout << "Reading program from file " << argv[1] << endl;
   std::ifstream t(argv[1]);
   std::stringstream buffer;
+  std::cout << buffer.str() << std::endl;
   buffer << t.rdbuf();
 
   // our scanner takes strings
@@ -68,7 +69,7 @@ int main(int argc, const char* argv[]) {
 
     sl.push_back(new Instruction("",Instruction::IPUSH, 6));
     sl.push_back(new Instruction("",Instruction::ISTORE, 5));
-    sl.push_back(new Instruction("",Instruction::IPUSH, 0));  
+    sl.push_back(new Instruction("",Instruction::IPUSH, 0));
     sl.push_back(new Instruction("LENTRY",Instruction::ILOAD, 5));
     sl.push_back(new Instruction("",Instruction::IPUSH, 0));
     sl.push_back(new Instruction("",Instruction::IJMPLE, "LEND"));

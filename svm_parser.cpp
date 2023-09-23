@@ -58,6 +58,13 @@ Token* Scanner::nextToken() {
   Token::Type ttype;
   c = nextChar();
   while (c == ' ') c = nextChar();
+  // Consumir comentarios
+  while (c == '%') {
+      while (c != '\n') {
+          c = nextChar();
+      }
+      c = nextChar();
+  }
   if (c == '\0') return new Token(Token::END);
   startLexema();
   state = 0;
@@ -109,7 +116,6 @@ Token* Scanner::nextToken() {
       exit(0);
     }
   }
-
 }
 
 Scanner::~Scanner() { }
@@ -156,7 +162,18 @@ Instruction::IType Token::tokenToIType(Token::Type tt) {
   case(Token::SUB): itype = Instruction::ISUB; break;
   case(Token::MUL): itype = Instruction::IMUL; break;
   case(Token::DIV): itype = Instruction::IDIV; break;
-    // completar
+
+  case(Token::SWAP): itype = Instruction::ISWAP; break;
+  case(Token::GOTO): itype = Instruction::IGOTO; break;
+  case(Token::JMPEQ): itype = Instruction::IJMPEQ; break;
+  case(Token::JMPGT): itype = Instruction::IJMPGT; break;
+  case(Token::JMPGE): itype = Instruction::IJMPGE; break;
+  case(Token::JMPLE): itype = Instruction::IJMPLE; break;
+  case(Token::JMPLT): itype = Instruction::IJMPLT; break;
+  case(Token::SKIP): itype = Instruction::ISKIP; break;
+  case(Token::STORE): itype = Instruction::ISTORE; break;
+  case(Token::LOAD): itype = Instruction::ILOAD; break;
+  case(Token::PRINT): itype = Instruction::IPRINT; break;
   default: cout << "Error: Unknown Keyword type" << endl; exit(0);
   }
   return itype;
@@ -229,30 +246,46 @@ SVM* Parser::parse() {
 Instruction* Parser::parseInstruction() {
   Instruction* instr = NULL;
   string label = "";
+  int argint = 0;
   string jmplabel;
   Token::Type ttype;
   int tipo = 0; // 0 no args, 1 un arg entero,  1 un arg label
   
-  // match label, si existe
+  // Match label, si existe
+  if (match(Token::LABEL)) {
+      label = previous->lexema;
+  }
 
-
-  if (match(Token::POP) || match(Token::ADD) ) {  // mas casos
+  if (match(Token::SKIP) || match(Token::POP) || match(Token::ADD) || match(Token::DIV) || match(Token::SWAP) || match(Token::DUP) || match(Token::SUB) || match(Token::MUL) || match(Token::PRINT) ) {
     tipo = 0;
     ttype = previous->type;
-  } else if (match(Token::PUSH) || match(Token::STORE)) { // mas casos
+  } else if (match(Token::PUSH) || match(Token::STORE) || match(Token::LOAD)) {
     tipo = 1;
     ttype = previous->type;
-    
-  } else if (match(Token::GOTO) ) { // mas casos
+
+    if (!match(Token::NUM)) {
+        cout << "Esperaba un NUMERO" << endl;
+        exit(0);
+    }
+
+    argint = stoi(previous->lexema);
+
+  } else if (match(Token::GOTO) || match(Token::JMPLE) || match(Token::JMPLT) || match(Token::JMPGE) || match(Token::JMPGT) || match(Token::JMPEQ) ) {
     tipo = 2;
     ttype = previous->type;
+
+    if (!match(Token::ID)) {
+        cout << "Esperaba un ID" << endl;
+        exit(0);
+    }
+
+    jmplabel = previous->lexema;
     
   } else {
     cout << "Error: no pudo encontrar match para " << current << endl;  
     exit(0);
   }
 
- 
   if (!match(Token::EOL)) {
     cout << "esperaba fin de linea" << endl;
     exit(0);
@@ -260,12 +293,11 @@ Instruction* Parser::parseInstruction() {
 
   if (tipo == 0) {
     instr = new Instruction(label, Token::tokenToIType(ttype));
-  } else if (tipo == 2) {
-    //instr = 
-  } else { //
-    //instr =
+  } else if (tipo == 1) {
+    instr = new Instruction(label, Token::tokenToIType(ttype), argint);
+  } else {
+    instr = new Instruction(label, Token::tokenToIType(ttype), jmplabel);
   }
-			   
 
   return instr;
 }

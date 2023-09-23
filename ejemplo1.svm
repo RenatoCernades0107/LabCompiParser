@@ -1,6 +1,6 @@
 push 30
 push 3
-div 
+div
 dup 
 push 2
 add 
@@ -9,5 +9,4 @@ jmpge L20
 push 10
 goto LEND
 L20: push 20
-LEND: skip 
-
+LEND: skip

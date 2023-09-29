@@ -2,7 +2,7 @@
 
 #include "svm.hh"
 
-string snames[18] = { "push", "pop", "dup", "swap", "add", "sub", "mult", "div", "goto", "jmpeq", "jmpgt", "jmpge", "jmplt", "jmple", "skip", "store", "load", "print" };
+string snames[19] = { "push", "pop", "dup", "swap", "add", "sub", "mult", "div", "goto", "jmpeq", "jmpgt", "jmpge", "jmplt", "jmple", "skip", "store", "load", "print","factorial" };
 
 Instruction::Instruction(string l, IType itype):label(l),type(itype),hasarg(false) {
 }
@@ -51,9 +51,9 @@ void SVM::execute() {
 
 void SVM::execute(Instruction* instr) {
   Instruction::IType itype = instr->type;
-  int next, top;
+  int next, top,i=1;
   //cout << "type: " << itype << endl;
-  if (itype==Instruction::IPOP || itype==Instruction::IDUP || itype==Instruction::IPRINT || itype==Instruction::ISKIP) {
+  if (itype==Instruction::IPOP || itype==Instruction::IDUP || itype==Instruction::IPRINT || itype==Instruction::ISKIP|| itype==Instruction::IFACTORIAL) {
     switch (itype) {
     case(Instruction::IPOP):
       if (opstack.empty()) perror("Can't pop from an empty stack");
@@ -63,6 +63,13 @@ void SVM::execute(Instruction* instr) {
       opstack.push(opstack.top()); break;
     case(Instruction::IPRINT): print_stack(); break;
     case(Instruction::ISKIP): break;
+    case(Instruction::IFACTORIAL):
+        if (opstack.top()==0){i=0;}
+        for (int j = 1; j <= opstack.top(); ++j) {
+            i*=j;
+        }
+        opstack.pop();
+        opstack.push(i);break;
     default: perror("Programming Error 1");
     }
     pc++;
@@ -97,9 +104,9 @@ void SVM::execute(Instruction* instr) {
     }
     if (jump) pc=instr->argint; else pc++;
   } else if (itype==Instruction::IADD || itype==Instruction::ISUB || itype==Instruction::IMUL
-	     || itype==Instruction::IDIV || itype==Instruction::ISWAP) {
+	     || itype==Instruction::IDIV || itype==Instruction::ISWAP ) {
     top = opstack.top(); opstack.pop();
-    next = opstack.top(); opstack.pop();    
+    next = opstack.top(); opstack.pop();
     switch(itype) {
     case(Instruction::IADD): opstack.push(next+top); break;
     case(Instruction::ISUB): opstack.push(next-top); break;

@@ -7,7 +7,7 @@
 
 #include "svm_parser.hh"
 
-const char* Token::token_names[24] = { "ID", "LABEL", "NUM", "EOL", "ERR", "END", "PUSH", "JMEPEQ", "JMPGT", "JMPGE", "JMPLT", "JMPLE", "GOTO", "SKIP", "POP", "DUP", "SWAP", "ADD", "SUB", "MUL", "DIV", "STORE", "LOAD", "PRINT" };
+const char* Token::token_names[25] = { "ID", "LABEL", "NUM", "EOL", "ERR", "END", "PUSH", "JMEPEQ", "JMPGT", "JMPGE", "JMPLT", "JMPLE", "GOTO", "SKIP", "POP", "DUP", "SWAP", "ADD", "SUB", "MUL", "DIV", "STORE", "LOAD", "PRINT", "FACTORIAL" };
 
 Token::Token(Type type):type(type) { lexema = ""; }
 
@@ -49,6 +49,7 @@ Scanner::Scanner(string s):input(s),first(0),current(0) {
   reserved["store"] = Token::STORE;
   reserved["load"] = Token::LOAD;
   reserved["print"] = Token::PRINT;
+  reserved["factorial"] = Token::FACTORIAL;
 }
 
 Token* Scanner::nextToken() {
@@ -174,6 +175,7 @@ Instruction::IType Token::tokenToIType(Token::Type tt) {
   case(Token::STORE): itype = Instruction::ISTORE; break;
   case(Token::LOAD): itype = Instruction::ILOAD; break;
   case(Token::PRINT): itype = Instruction::IPRINT; break;
+  case(Token::FACTORIAL): itype = Instruction::IFACTORIAL; break;
   default: cout << "Error: Unknown Keyword type" << endl; exit(0);
   }
   return itype;
@@ -256,7 +258,7 @@ Instruction* Parser::parseInstruction() {
       label = previous->lexema;
   }
 
-  if (match(Token::SKIP) || match(Token::POP) || match(Token::ADD) || match(Token::DIV) || match(Token::SWAP) || match(Token::DUP) || match(Token::SUB) || match(Token::MUL) || match(Token::PRINT) ) {
+  if (match(Token::SKIP) || match(Token::POP) || match(Token::ADD) || match(Token::DIV) || match(Token::SWAP) || match(Token::DUP) || match(Token::SUB) || match(Token::MUL) || match(Token::PRINT)|| match(Token::FACTORIAL) ) {
     tipo = 0;
     ttype = previous->type;
   } else if (match(Token::PUSH) || match(Token::STORE) || match(Token::LOAD)) {

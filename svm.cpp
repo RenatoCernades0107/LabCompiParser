@@ -64,7 +64,6 @@ void SVM::execute(Instruction* instr) {
     case(Instruction::IPRINT): print_stack(); break;
     case(Instruction::ISKIP): break;
     case(Instruction::IFACTORIAL):
-        if (opstack.top()==0){i=0;}
         for (int j = 1; j <= opstack.top(); ++j) {
             i*=j;
         }
